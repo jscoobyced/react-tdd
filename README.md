@@ -82,4 +82,4 @@ I will add [traefik](https://doc.traefik.io/traefik/providers/docker/) soon in o
 
 # Credits
 
-This is largely inspired from https://learntdd.in/react/.
+This is initially inspired from https://learntdd.in/react/ and enhanced with docker container, code coverage and code quality via GitHub actions.
