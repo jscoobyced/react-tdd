@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  cypress:
+    image: cypress/included
+    depends_on:
+      - reactapp
+    networks:
+      - reactapp-network
+    volumes:
+      - $PWD:/e2e
+    working_dir: /e2e
+    command: run --e2e
+    environment:
+      - CYPRESS_VIDEO=false
+    entrypoint: cypress
+
+  reactapp:
+    build: .
+    environment:
+      - BROWSER=none
+    ports:
+      - 3000:3000
+    volumes:
+      - $PWD/src:/app/src
+      - $PWD/public:/app/public
+    networks:
+      - reactapp-network
+
+  tests:
+    build: .
+    environment:
+      - BROWSER=none
+    volumes:
+      - $PWD/src:/app/src
+      - $PWD/public:/app/public
+    entrypoint: yarn test
+
+networks:
+  reactapp-network:
