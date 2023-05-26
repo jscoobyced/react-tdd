@@ -20,12 +20,6 @@ Follow the [Start from Scratch](docs/scratch.md) to start from a blank slate.
 
 Change to the project directory, and run:
 ```
-docker-compose up reactapp
-```
-to start this shell project. You can open a browser to http://localhost:3000, it supports hot-reload so any change made in the `src` or `public` folder will be updated in the browser automatically.
-
-Open another terminal and run
-```
 docker-compose up tests
 ```
 
@@ -35,6 +29,14 @@ This will run the sample test
 
 As you add or modify tests, they will automatically run.
 
+Open another terminal and run
+
+```
+docker-compose up reactapp
+```
+to start this shell project. You can open a browser to [http://reactapp.localhost](http://reactapp.localhost), it supports hot-reload so any change made in the `src` or `public` folder will be updated in the browser automatically.
+
+Note: this project uses [https://traefik.io/](https://traefik.io/) to proxy the React application, and it will automatically make the `http://reactapp.localhost` domain available. The application will also be available on http://reactapp.localhost:3000 for the E2E tests to run. But you don't have to use the port 3000 for development.
 
 ## End-to-end tests
 

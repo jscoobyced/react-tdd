@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # The Cypress E2E testing service
   cypress:
     image: cypress/included
     depends_on:
@@ -14,27 +15,78 @@ services:
     environment:
       - CYPRESS_VIDEO=false
     entrypoint: cypress
+    # Disable Traefik proxy
+    labels:
+      - traefik.enable=false
 
+  # The React Application service
   reactapp:
-    build: .
+    # Ensures Traefik dependency is started first
+    depends_on:
+      - traefik
+    image: "node:18-alpine"
+    working_dir: /app
+    # build:
+    #   context: .
+    #   dockerfile: ./etc/docker/dev/Dockerfile
     environment:
       - BROWSER=none
-    ports:
-      - 3000:3000
+    # For the node_modules folder permission. You might
+    # need to use a different UIG:GID to match your current
+    # user.
+    user: "1000:1000"
     volumes:
-      - $PWD/src:/app/src
-      - $PWD/public:/app/public
+      - $PWD/:/app/
+    entrypoint: sh -c "yarn && yarn start"
+    expose:
+      - 3000
+    networks:
+      reactapp-network:
+        aliases:
+          - "reactapp.localhost"
+    # Traefik proxy configuration
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reactapp.entrypoints=web"
+      - "traefik.http.routers.reactapp.rule=Host(`reactapp.localhost`)"
+      - "traefik.http.routers.reactapp-ws.entrypoints=websockets"
+      - "traefik.http.routers.reactapp-ws.rule=Host(`reactapp.localhost`)"
+      - "traefik.docker.network=reactapp-network"
+      - "traefik.frontend.headers.frameDeny=true"
+
+  # The Jest unit-testing service
+  tests:
+    image: "node:18-alpine"
+    working_dir: /app
+    user: "1000:1000"
+    environment:
+      - BROWSER=none
+    volumes:
+      - $PWD/:/app/
+    entrypoint: sh -c "yarn && yarn test"
+    # Disable Traefik proxy
+    labels:
+      - traefik.enable=false
+
+  # Traefik proxy service
+  traefik:
+    image: traefik
+    container_name: "traefik"
     networks:
       - reactapp-network
-
-  tests:
-    build: .
-    environment:
-      - BROWSER=none
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websockets.address=:3000"
+    ports:
+      # For the React application
+      - "80:80"
+      # For the hot-reload web-sockets
+      - "3000:3000"
     volumes:
-      - $PWD/src:/app/src
-      - $PWD/public:/app/public
-    entrypoint: yarn test
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 networks:
   reactapp-network:
