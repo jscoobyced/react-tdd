@@ -68,7 +68,6 @@ You are now ready to start your TDD experience!
 
 ### Cypress in docker
 
-If you want to run the E2E tests in docker, you will need to change the URL in the [cypress/e2e/configuration_check.cy.ts](cypress/e2e/configuration_check.cy.ts) to use `reactapp` instead of `0.0.0.0`.
 
 You can then run the following command:
 ```
@@ -78,8 +77,6 @@ docker-compose up cypress
 The output will show as below:
 
 ![Cypress E2E test screen](docs/img/cypress-e2e-docker-small.png)
-
-I will add [traefik](https://doc.traefik.io/traefik/providers/docker/) soon in order to be able to run the E2E tests both via docker and natively.
 
 
 # Credits
